@@ -23,7 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             height: 200,
             width: double.infinity,
-            color: Colors.amber,
+            color: const Color.fromARGB(255, 32, 28, 13),
           ),
           Column(
             children: [
