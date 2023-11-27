@@ -9,19 +9,19 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   String _errorText = '';
 
   bool _obscurePassword = true;
 
-//TODO: 1. Membuat metode _signUp
+//TODO: 1 Membuat metode _signUp
   void _signUp() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String name = _nameController.text.trim();
-    final String username = _usernameController.text.trim();
+    final String name = _namaController.text.trim();
+    final String username = _userController.text.trim();
     final String password = _passwordController.text.trim();
 
     if (password.length < 8 ||
@@ -33,10 +33,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _errorText =
             'Minimal 8 karakter, kombinasi [A-Z], [a-z], [0-9], [!@#\\\$%^&*(),.?":{}|<>]';
       });
-
       return;
     }
-
     //simpan data pengguna di SharedPreferences
     prefs.setString('fullname', name);
     prefs.setString('username', username);
@@ -44,13 +42,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     //buat navigasi ke SignInScreen
     Navigator.pushReplacementNamed(context, '/signin');
+
+    print('*** Sign Up berhasil!');
+    print('Nama: $name');
+    print('Nama Pengguna: $username');
+    print('Password: $password');
   }
 
-//TODO: 2. Membuat metode dispose
+//TODO: 2 Mmembuat metode dispose
   @override
   void dispose() {
     //TODO: implement dispose
-    _nameController.dispose();
+    _namaController.dispose();
+    _userController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -68,14 +74,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextFormField(),
-                const SizedBox(
-                  height: 20,
+                TextFormField(
+                  controller: _namaController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                      labelText: "Nama", border: OutlineInputBorder()),
                 ),
-                TextFormField(),
-                const SizedBox(
-                  height: 20,
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _userController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                      labelText: "Nama Pengguna", border: OutlineInputBorder()),
                 ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
@@ -83,16 +95,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     errorText: _errorText.isNotEmpty ? _errorText : null,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
                         });
                       },
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility),
                     ),
                   ),
                   obscureText: _obscurePassword,
@@ -100,7 +110,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                ElevatedButton(onPressed: _signUp, child: Text('Sign Up'))
+                ElevatedButton(
+                    onPressed: _signUp, child: const Text("Sign Up")),
               ],
             )),
           ),
