@@ -5,60 +5,58 @@ import 'package:wisata_candi/models/candi.dart';
 
 class DetailScreen extends StatefulWidget {
   final Candi candi;
-  const DetailScreen({super.key, required this.candi});
+  const DetailScreen({Key? key, required this.candi}) : super(key: key);
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-    bool isFavorite = false;
-    bool isSignedIn = false; //Menyimpan status sign in
+  bool isFavorite = false;
+  bool isSignedIn = false;
 
-    @override
-    void initState(){
-      super.initState();
-      _checkSignInStatus(); //Memeriksa status sign in saat layar dimuat
-      _loadFavoriteStatus(); //Memeriksa status favorit saat layar dimuat
-    }
+  @override
+  void initState() {
+    super.initState();
+    _checkSignInStatus();
+    _loadFavoriteStatus();
+  }
 
-    //Memeriksa status sign in
-    void _checkSignInStatus() async{
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool signedIn = prefs.getBool('isSignedIn')?? false;
-      setState(() {
-        isSignedIn = signedIn;
+  void _checkSignInStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool signedIn = prefs.getBool('isSignedIn') ?? false;
+    setState(() {
+      isSignedIn = signedIn;
+    });
+  }
+
+  void _loadFavoriteStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool favorite = prefs.getBool('favorite_${widget.candi.name}') ?? false;
+    setState(() {
+      isFavorite = favorite;
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (!isSignedIn) {
+      // If not signed in, navigate to SignInScreen
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        Navigator.pushReplacementNamed(context, '/signin');
       });
+      return;
     }
 
-    //Memeriksa status favorit
-    void _loadFavoriteStatus() async{
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool favorite = prefs.getBool('favorite_${widget.candi.name}') ?? false;
-      setState(() {
-        isFavorite = favorite;
-      });
-    }
-    Future<void> _toggleFavorite() async{
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool favoriteStatus = !isFavorite;
+    prefs.setBool('favorite_${widget.candi.name}', favoriteStatus);
 
-      //Memeriksa apakah pengguna sudah sign in
-      if(isSignedIn){
-        //Jika belum sign in, arahkan ke SignInScreen
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          Navigator.pushReplacementNamed(context, '/signin');
-         });
-        return;
-      }
+    setState(() {
+      isFavorite = favoriteStatus;
+    });
+  }
 
-      bool favoriteStatus = !isFavorite;
-      prefs.setBool('favorite_${widget.candi.name}', favoriteStatus);
-
-      setState(() {
-        isFavorite = favoriteStatus;
-      });
-    }
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,23 +64,23 @@ class _DetailScreenState extends State<DetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // DetailHeader
             Stack(
               children: [
-                // image utama
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      widget.candi.imageAsset,
-                      width: double.infinity,
-                      height: 300,
-                      fit: BoxFit.cover,
+                Hero(
+                  tag: widget.candi.imageAsset,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        widget.candi.imageAsset,
+                        width: double.infinity,
+                        height: 300,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-                // tombol back kustom
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -105,7 +103,6 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
               ],
             ),
-            // DetailInfo
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -114,7 +111,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   const SizedBox(
                     height: 16,
                   ),
-// info atas (nama candi dan tombol favorit
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -129,13 +125,15 @@ class _DetailScreenState extends State<DetailScreen> {
                         onPressed: () {
                           _toggleFavorite();
                         },
-                        icon: Icon(isSignedIn && isFavorite
-                        ? Icons.favorite : Icons.favorite_border,
-                        color: isSignedIn && isFavorite ? Colors.red : null,),
+                        icon: Icon(
+                          isSignedIn && isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: isSignedIn && isFavorite ? Colors.red : null,
+                        ),
                       )
                     ],
                   ),
-// info tengah (lokasi, dibangun, tipe)
                   const SizedBox(
                     height: 16,
                   ),
@@ -209,7 +207,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   const SizedBox(
                     height: 16,
                   ),
-                  // info bawah (deskripsi)
                   const Text(
                     'Deskripsi',
                     style: TextStyle(
@@ -224,7 +221,6 @@ class _DetailScreenState extends State<DetailScreen> {
                 ],
               ),
             ),
-            // DetailGallery
             Padding(
               padding: const EdgeInsets.all(15),
               child: Column(
@@ -299,6 +295,10 @@ class _DetailScreenState extends State<DetailScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
       /*body: Column(
         children: [
           Stack(
@@ -328,6 +328,3 @@ class _DetailScreenState extends State<DetailScreen> {
           )
         ],
       ),*/
-    );
-  }
-}
